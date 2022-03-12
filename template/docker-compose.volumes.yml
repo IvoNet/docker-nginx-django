@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.db.env
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/app/volumes/staticfiles
+      - media_volume:/app/volumes/mediafiles
+    ports:
+      - "1337:80"
+    depends_on:
+      - web
+  web:
+    image: ivonet/ivonet-site
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - static_volume:/app/volumes/staticfiles
+      - media_volume:/app/volumes/mediafiles
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
